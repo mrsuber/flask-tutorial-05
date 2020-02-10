@@ -1,0 +1,42 @@
+version: "3.3"
+
+services:
+  nginx:
+    build: ./nginx
+    container_name: My_Flask05_App_nginx
+    restart: always
+    ports:
+      - "7005:80"
+    networks:
+      - webnet
+    depends_on:
+      - "db"
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "flaskfirstprogram"
+      MYSQL_USER: "flaskfirstprogram"
+      MYSQL_PASSWORD: "flaskfirstprogram"
+      MYSQL_DATABASE: "flaskfirstprogram"
+    container_name: flask05_mysql_server
+    volumes:
+      - ~/flask-app/mysql/data:/var/lib/mysql
+    networks:
+      - webnet
+  flask:
+    build: ./flask
+    container_name: My_Flask05_App
+    command: ["uwsgi", "app.ini"]
+    depends_on:
+      - "db"
+    restart: always
+    environment:
+      - APP_NAME=MyFlaskApp
+    expose:
+      - 8080
+    networks:
+      - webnet
+networks:
+  webnet:
